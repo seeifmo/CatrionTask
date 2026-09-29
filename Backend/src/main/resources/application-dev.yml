@@ -1,0 +1,31 @@
+# Local development: in-memory H2, a seeded test user, H2 console and Swagger UI.
+spring:
+  datasource:
+    url: jdbc:h2:mem:userauth;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+app:
+  jwt:
+    # Dev-only key. Never use it anywhere else.
+    secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+  auth-cookie:
+    # Plain http on localhost.
+    secure: false
+  dev-tools:
+    enabled: true
+  # Test login for local development (see README).
+  seed:
+    username: demo
+    password: Demo12345
+    email: demo@example.com
+    full-name: Demo User

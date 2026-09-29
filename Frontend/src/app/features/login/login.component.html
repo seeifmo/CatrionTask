@@ -1,0 +1,61 @@
+<mat-card class="auth-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title><h1 class="card-title">Sign in</h1></mat-card-title>
+    <mat-card-subtitle>Welcome back. Enter your details to continue.</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-error" role="alert" aria-live="assertive">
+        @if (errorMessage(); as message) {
+          <mat-icon aria-hidden="true">error</mat-icon>
+          <span>{{ message }}</span>
+        }
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username" autocapitalize="none" />
+        @if (form.controls.username.hasError('required')) {
+          <mat-error>Username is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          formControlName="password"
+          autocomplete="current-password"
+          [type]="hidePassword() ? 'password' : 'text'"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+          [attr.aria-pressed]="!hidePassword()"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (form.controls.password.hasError('required')) {
+          <mat-error>Password is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
+        @if (submitting()) {
+          <mat-spinner diameter="20" aria-label="Signing in" />
+        } @else {
+          Sign in
+        }
+      </button>
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions class="card-footer">
+    <span>New here?</span>
+    <a mat-button routerLink="/register">Create an account</a>
+  </mat-card-actions>
+</mat-card>

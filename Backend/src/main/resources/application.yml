@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: user-auth
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  jwt:
+    # Required outside dev: at least 32 random characters, e.g. `openssl rand -base64 48`.
+    secret: ${JWT_SECRET:}
+    ttl: ${JWT_TTL:30m}
+    issuer: user-auth
+  auth-cookie:
+    name: access_token
+    secure: true
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  dev-tools:
+    enabled: false

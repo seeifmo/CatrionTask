@@ -1,0 +1,39 @@
+@if (user(); as user) {
+  <mat-card class="auth-card" appearance="outlined">
+    <div class="identity">
+      <div class="avatar" aria-hidden="true">{{ initials() }}</div>
+      <div>
+        <h1 class="card-title">{{ user.fullName }}</h1>
+        <p class="muted">&#64;{{ user.username }}</p>
+      </div>
+    </div>
+
+    <mat-divider />
+
+    <mat-card-content>
+      <dl class="details">
+        <div class="detail">
+          <dt><mat-icon aria-hidden="true">mail</mat-icon>Email</dt>
+          <dd>{{ user.email }}</dd>
+        </div>
+        <div class="detail">
+          <dt><mat-icon aria-hidden="true">badge</mat-icon>Role</dt>
+          <dd>
+            <span class="role-chip">{{ roleLabel() }}</span>
+          </dd>
+        </div>
+        <div class="detail">
+          <dt><mat-icon aria-hidden="true">person</mat-icon>Username</dt>
+          <dd>{{ user.username }}</dd>
+        </div>
+      </dl>
+    </mat-card-content>
+
+    <mat-card-actions class="card-footer">
+      <button mat-stroked-button type="button" (click)="logout()" [disabled]="loggingOut()">
+        <mat-icon>logout</mat-icon>
+        Log out
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}

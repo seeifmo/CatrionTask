@@ -1,0 +1,21 @@
+# IDE
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Backend
+Backend/target/
+Backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.angular/
+Frontend/*.log
+
+# OS / misc
+.DS_Store
+Thumbs.db
+*.log
+.env
