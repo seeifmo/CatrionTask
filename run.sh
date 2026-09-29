@@ -11,7 +11,8 @@
 #   BACKEND_PORT   (default 8080)   FRONTEND_PORT (default 4200)
 #   JAVA_OPTS      extra JVM flags for the backend, e.g. "-Xmx512m"
 #
-# Works on Linux, macOS and Windows (Git Bash).
+# Busy default ports are replaced automatically by the next free port.
+# Works on Linux, macOS and Windows (Git Bash; from PowerShell or cmd use run.cmd).
 
 set -euo pipefail
 
@@ -20,6 +21,9 @@ BACKEND_DIR="$ROOT/Backend"
 FRONTEND_DIR="$ROOT/Frontend"
 RUN_DIR="$ROOT/.run"
 
+# Remember whether the user chose the ports; if not, busy defaults are replaced by the next free port.
+BACKEND_PORT_SET="${BACKEND_PORT:+yes}"
+FRONTEND_PORT_SET="${FRONTEND_PORT:+yes}"
 BACKEND_PORT="${BACKEND_PORT:-8080}"
 FRONTEND_PORT="${FRONTEND_PORT:-4200}"
 JAVA_OPTS="${JAVA_OPTS:-}"
@@ -39,7 +43,7 @@ info() { printf '%s==>%s %s\n' "$BOLD" "$RESET" "$*"; }
 warn() { printf '%swarning:%s %s\n' "$YELLOW" "$RESET" "$*" >&2; }
 die()  { printf '%serror:%s %s\n' "$RED" "$RESET" "$*" >&2; exit 1; }
 
-usage() { sed -n '3,15p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '3,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 require_java() {
   command -v java >/dev/null 2>&1 || die "Java not found. Install JDK 17 or newer."
@@ -64,10 +68,22 @@ require_node() {
 
 port_in_use() { (echo >"/dev/tcp/127.0.0.1/$1") >/dev/null 2>&1; }
 
-require_free_port() {
-  if port_in_use "$1"; then
-    die "Port $1 is already in use. Stop that process or set $2=<another port>."
+# pick_port VAR_NAME: keeps a free port; if busy, fails for a port the user set explicitly, otherwise
+# moves on to the next free one (up to +20) so a default that's taken doesn't stop the app.
+pick_port() {
+  local name="$1" explicit="$2" port="${!1}" candidate
+  if ! port_in_use "$port"; then
+    return
   fi
+  [[ -n "$explicit" ]] && die "Port $port ($name) is already in use. Stop that process or choose another port."
+  for candidate in $(seq $((port + 1)) $((port + 20))); do
+    if ! port_in_use "$candidate"; then
+      warn "Port $port is busy, using $candidate for $name instead."
+      printf -v "$name" '%s' "$candidate"
+      return
+    fi
+  done
+  die "Ports $port-$((port + 20)) are all busy. Set $name=<free port>."
 }
 
 wait_for() { # url, name, timeout-seconds, log file
@@ -102,8 +118,9 @@ cleanup() {
 cmd_dev() {
   require_java
   require_node
-  require_free_port "$BACKEND_PORT" BACKEND_PORT
-  require_free_port "$FRONTEND_PORT" FRONTEND_PORT
+  pick_port BACKEND_PORT "$BACKEND_PORT_SET"
+  pick_port FRONTEND_PORT "$FRONTEND_PORT_SET"
+  BACKEND_URL="http://localhost:$BACKEND_PORT"
   mkdir -p "$RUN_DIR"
   trap cleanup EXIT
   trap 'cleanup; exit 130' INT TERM
@@ -140,7 +157,9 @@ ${GREEN}${BOLD}Ready.${RESET}
     demo  / Demo12345   role USER
     admin / Admin12345  role ADMIN
 
-  In another terminal:  BACKEND_PORT=$BACKEND_PORT ./run.sh smoke
+  Smoke test, in another terminal:
+    bash:        BACKEND_PORT=$BACKEND_PORT ./run.sh smoke
+    PowerShell:  \$env:BACKEND_PORT="$BACKEND_PORT"; .\run.cmd smoke
   Press Ctrl+C to stop.
 EOF
   # Exit (and clean up) as soon as either process dies. Polling instead of `wait -n` keeps this

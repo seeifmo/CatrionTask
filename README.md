@@ -59,6 +59,10 @@ All errors come back as RFC 9457 `ProblemDetail` JSON from one `@RestControllerA
 ./run.sh smoke    # live API checks with curl, including the secured endpoints
 ```
 
+On Windows, run the same commands from PowerShell or cmd as `.un.cmd`, `.un.cmd test` and
+`.un.cmd smoke`. The wrapper finds Git Bash automatically. If a default port is busy, the
+script uses the next free one and says so.
+
 Reviewers: start with **[REVIEWER_GUIDE.md](REVIEWER_GUIDE.md)**.
 
 ## Prerequisites

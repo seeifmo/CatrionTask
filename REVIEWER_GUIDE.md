@@ -15,11 +15,15 @@ Docker are not needed.
 ./run.sh            # builds and starts backend :8080 + frontend :4200. Ctrl+C stops both.
 ```
 
+On **Windows PowerShell or cmd**, use `.un.cmd` instead. It runs the same script through Git Bash
+(`.un.cmd test`, `.un.cmd smoke`).
+
 The script checks the Java and Node versions and the free ports first, installs frontend
 dependencies on the first run, waits for both servers to be healthy, then prints the URLs.
 Logs go to `.run/`.
 
-If a port is busy, pick others: `BACKEND_PORT=8090 FRONTEND_PORT=4300 ./run.sh`
+If 8080 or 4200 is busy, the script moves to the next free port and prints the URLs it used.
+To choose ports yourself: `BACKEND_PORT=8090 FRONTEND_PORT=4300 ./run.sh`
 
 **Test accounts** (dev profile only, defined in `Backend/src/main/resources/application-dev.yml`):
 
