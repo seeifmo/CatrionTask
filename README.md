@@ -8,6 +8,42 @@ The frontend is an Angular Material SPA.
 | `Backend/` | Spring Boot 3.5, Java 17, Spring Security (OAuth2 resource server / Nimbus JWT), Spring Data JPA, Flyway, H2 (dev), PostgreSQL (prod) |
 | `Frontend/` | Angular 22 (standalone, signals, zoneless), Angular Material 3, Vitest, ESLint |
 
+Reviewers: start with **[REVIEWER_GUIDE.md](REVIEWER_GUIDE.md)**.
+
+## Quick start
+
+You need JDK 17+ and Node 22.22.3+ (see [Prerequisites](#prerequisites)).
+
+```bash
+git clone https://github.com/seeifmo/CatrionTask.git
+cd CatrionTask
+```
+
+**Windows (PowerShell or cmd):**
+
+```powershell
+.\run.cmd          # start backend + frontend, then open http://localhost:4200 (Ctrl+C stops both)
+.\run.cmd test     # all automated checks: backend and frontend tests, lint, production build
+.\run.cmd smoke    # live API security checks (run in a second terminal while the app is up)
+```
+
+`run.cmd` runs `run.sh` through Git Bash, which comes with Git for Windows.
+
+**macOS / Linux / Git Bash:**
+
+```bash
+./run.sh           # start backend + frontend, then open http://localhost:4200 (Ctrl+C stops both)
+./run.sh test      # all automated checks
+./run.sh smoke     # live API security checks (second terminal)
+```
+
+**Test logins:** `demo` / `Demo12345` (USER) and `admin` / `Admin12345` (ADMIN).
+
+The backend uses port 8080 and the frontend 4200. If either is busy, the script picks the next free
+port and prints the URLs it used. If you then run `smoke` against a moved backend, pass its port:
+`BACKEND_PORT=8081 ./run.sh smoke` in bash, or `$env:BACKEND_PORT="8081"; .\run.cmd smoke` in
+PowerShell. Logs go to `.run/backend.log` and `.run/frontend.log`.
+
 ## How authentication works
 
 ```
@@ -51,20 +87,6 @@ All errors come back as RFC 9457 `ProblemDetail` JSON from one `@RestControllerA
   - Behind a proxy, set `FORWARD_HEADERS_STRATEGY=native` so the real client IP is used.
   - `X-Forwarded-For` is never trusted on its own.
 
-## Quick start
-
-```bash
-./run.sh          # start backend (:8080) + frontend (:4200); Ctrl+C stops both
-./run.sh test     # all automated checks
-./run.sh smoke    # live API checks with curl, including the secured endpoints
-```
-
-On Windows, run the same commands from PowerShell or cmd as `.un.cmd`, `.un.cmd test` and
-`.un.cmd smoke`. The wrapper finds Git Bash automatically. If a default port is busy, the
-script uses the next free one and says so.
-
-Reviewers: start with **[REVIEWER_GUIDE.md](REVIEWER_GUIDE.md)**.
-
 ## Prerequisites
 
 - JDK 17+
@@ -73,7 +95,7 @@ Reviewers: start with **[REVIEWER_GUIDE.md](REVIEWER_GUIDE.md)**.
 
 Maven isn't needed: use the wrapper (`mvnw` / `mvnw.cmd`).
 
-## Run in development
+## Run manually (without the script)
 
 ```bash
 # 1. Backend on :8080 (H2 in memory, seeded user, Swagger UI)
@@ -150,7 +172,7 @@ Usernames and emails are stored lowercase, so they are unique regardless of case
 ## Tests
 
 ```bash
-./run.sh test                                   # everything below in one go
+./run.sh test          # or .\run.cmd test on Windows: everything below in one go
 cd Backend && ./mvnw verify                     # 9 unit + 37 integration tests
 cd Frontend && npm test -- --watch=false        # 36 unit tests (Vitest)
 cd Frontend && npx ng lint && npx ng build

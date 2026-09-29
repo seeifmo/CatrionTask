@@ -15,8 +15,8 @@ Docker are not needed.
 ./run.sh            # builds and starts backend :8080 + frontend :4200. Ctrl+C stops both.
 ```
 
-On **Windows PowerShell or cmd**, use `.un.cmd` instead. It runs the same script through Git Bash
-(`.un.cmd test`, `.un.cmd smoke`).
+On **Windows PowerShell or cmd**, use `.\run.cmd` instead. It runs the same script through Git Bash
+(`.\run.cmd test`, `.\run.cmd smoke`).
 
 The script checks the Java and Node versions and the free ports first, installs frontend
 dependencies on the first run, waits for both servers to be healthy, then prints the URLs.
