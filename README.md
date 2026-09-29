@@ -169,10 +169,3 @@ Frontend/src/app/
   core/      AuthService, interceptor, guards, UserService, API error mapping
   features/  login, register, profile pages
 ```
-
-## Next steps (out of scope)
-
-- Refresh tokens or sliding sessions (right now the user signs in again after `JWT_TTL`)
-- Per-account lockout (the rate limit is per IP) and a shared, multi-instance rate-limit store
-- Email verification and password reset
-- Server-side token revocation (a denylist keyed on the `jti` claim)
