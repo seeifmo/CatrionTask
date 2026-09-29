@@ -1,11 +1,11 @@
 package com.task.userauth.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.task.userauth.common.ProblemDetailWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -14,39 +14,35 @@ import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URI;
 
 /** Writes 401 and 403 responses from the security filter chain as RFC 9457 ProblemDetail JSON. */
 @Component
 public class ProblemDetailSecurityHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
-    private final ObjectMapper objectMapper;
+    private static final Logger log = LoggerFactory.getLogger(ProblemDetailSecurityHandler.class);
 
-    public ProblemDetailSecurityHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    private final ProblemDetailWriter writer;
+
+    public ProblemDetailSecurityHandler(ProblemDetailWriter writer) {
+        this.writer = writer;
     }
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException ex)
             throws IOException {
-        write(request, response, HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
+        log.debug("401 {} {}: {}", request.getMethod(), request.getRequestURI(), ex.getMessage());
+        writer.write(request, response, HttpStatus.UNAUTHORIZED, "Authentication is required to access this resource.");
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex)
             throws IOException {
-        String detail = ex instanceof CsrfException
+        boolean csrf = ex instanceof CsrfException;
+        // Worth a WARN: either a misbehaving client or someone probing endpoints they may not use.
+        log.warn("403 {} {} for '{}': {}", request.getMethod(), request.getRequestURI(),
+                request.getRemoteUser(), csrf ? "missing or invalid CSRF token" : "access denied");
+        writer.write(request, response, HttpStatus.FORBIDDEN, csrf
                 ? "Missing or invalid CSRF token."
-                : "You do not have permission to access this resource.";
-        write(request, response, HttpStatus.FORBIDDEN, detail);
-    }
-
-    private void write(HttpServletRequest request, HttpServletResponse response, HttpStatus status, String detail)
-            throws IOException {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
-        problem.setInstance(URI.create(request.getRequestURI()));
-        response.setStatus(status.value());
-        response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
-        objectMapper.writeValue(response.getOutputStream(), problem);
+                : "You do not have permission to access this resource.");
     }
 }

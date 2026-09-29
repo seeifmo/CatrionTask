@@ -1,0 +1,8 @@
+# Test-only overrides. classpath:config/ outranks classpath:, so this beats the main application-dev.yml.
+# The whole suite logs in from 127.0.0.1 many times; RateLimitIT sets its own low limits.
+app:
+  rate-limit:
+    auth:
+      capacity: 10000
+    api:
+      capacity: 10000

@@ -19,3 +19,6 @@ Frontend/*.log
 Thumbs.db
 *.log
 .env
+
+# run.sh logs
+.run/

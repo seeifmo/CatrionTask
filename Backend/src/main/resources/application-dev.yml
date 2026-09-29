@@ -8,6 +8,11 @@ spring:
     console:
       enabled: true
 
+logging:
+  level:
+    # Shows the AOP method-level logs (arguments, timings) locally.
+    com.task.userauth: DEBUG
+
 springdoc:
   api-docs:
     enabled: true
@@ -23,9 +28,20 @@ app:
     secure: false
   dev-tools:
     enabled: true
-  # Test login for local development (see README).
+  rate-limit:
+    # Looser locally: the Angular dev proxy makes every browser tab look like the same IP (127.0.0.1).
+    auth:
+      capacity: ${RATE_LIMIT_AUTH_CAPACITY:30}
+  # Test logins for local development (see README / REVIEWER_GUIDE).
   seed:
-    username: demo
-    password: Demo12345
-    email: demo@example.com
-    full-name: Demo User
+    users:
+      - username: demo
+        password: Demo12345
+        email: demo@example.com
+        full-name: Demo User
+        role: USER
+      - username: admin
+        password: Admin12345
+        email: admin@example.com
+        full-name: Admin User
+        role: ADMIN

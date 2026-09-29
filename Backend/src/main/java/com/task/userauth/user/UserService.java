@@ -1,5 +1,8 @@
 package com.task.userauth.user;
 
+import com.task.userauth.common.PageResponse;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,6 +30,11 @@ public class UserService implements UserDetailsService {
 
     public UserResponse getProfile(String username) {
         return UserResponse.from(findByUsername(username));
+    }
+
+    public PageResponse<UserResponse> listUsers(int page, int size) {
+        return PageResponse.from(userRepository.findAll(PageRequest.of(page, size, Sort.by("id"))),
+                UserResponse::from);
     }
 
     private User findByUsername(String username) {
